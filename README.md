@@ -37,5 +37,9 @@ make menuconfig
 # 开始编译
 make package/luci-app-haproxy-tcp/compile V=99
 ```
-![](http://chuantu.biz/t5/45/1483582973x1903953690.jpg)
+
+
+截图
+---
+![](https://github.com/AlexZhuo/BreakwallOpenWrt/raw/master/screenshots/haproxy.jpg)
 
