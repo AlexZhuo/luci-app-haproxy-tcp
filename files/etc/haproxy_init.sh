@@ -71,7 +71,7 @@ EOF
 		fi
 		echo the $COUNTER $server_ip $server_name $server_port $server_weight
 		echo server $server_name $server_ip:$server_port weight $server_weight maxconn 1024 check inter 1500 rise 3 fall 3 >> $CFG_FILE
-		iptables -t nat -A HAPROXY -p tcp -d $server_ip -j RETURN
+		iptables -t nat -A HAPROXY -p tcp -d $server_ip -j ACCEPT
 		COUNTER=$(($COUNTER+1))
 	done
 	COUNTER=0
@@ -87,7 +87,7 @@ EOF
 		fi
 		echo the $COUNTER $server_ip $server_name $server_port
 		echo server $server_name $server_ip:$server_port weight 10 check backup inter 1500 rise 3 fall 3 >> $CFG_FILE
-		iptables -t nat -A HAPROXY -p tcp -d $server_ip -j RETURN
+		iptables -t nat -A HAPROXY -p tcp -d $server_ip -j ACCEPT
 		COUNTER=$(($COUNTER+1))
 	done
 	iptables -t nat -I OUTPUT -j HAPROXY
@@ -102,6 +102,10 @@ EOF
 	logger -t alex !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!haproxy is initializing enabled is $vt_enabled
 	echo $vt_enabled 
 	if [ "$vt_enabled" = 1 ]; then
+		iptables -t nat -D OUTPUT -j HAPROXY &> /dev/null
+		iptables -t nat -F HAPROXY &> /dev/null
+		sleep 1
+		iptables -t nat -X HAPROXY &> /dev/null
 		restart;
 	else	
 		stop;
