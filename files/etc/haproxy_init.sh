@@ -4,6 +4,10 @@ stop(){
 	echo "stopping haproxy"
 	/etc/init.d/haproxy disable
 	/etc/init.d/haproxy stop
+	iptables -t nat -D OUTPUT -j HAPROXY &> /dev/null
+	iptables -t nat -F HAPROXY &> /dev/null
+	sleep 1
+	iptables -t nat -X HAPROXY &> /dev/null
 }
 restart(){
 	echo "restarting haproxy"
@@ -51,6 +55,10 @@ backend ss-out
 EOF
 	COUNTER=0
 	#添加主服务器
+	iptables -t nat -X HAPROXY
+	iptables -t nat -N HAPROXY
+	iptables -t nat -F HAPROXY
+
 	while true
 	do	
 		local server_ip=`uci get haproxy.@main_server[$COUNTER].server_ip 2>/dev/null`
@@ -63,6 +71,7 @@ EOF
 		fi
 		echo the $COUNTER $server_ip $server_name $server_port $server_weight
 		echo server $server_name $server_ip:$server_port weight $server_weight maxconn 1024 check inter 1500 rise 3 fall 3 >> $CFG_FILE
+		iptables -t nat -A HAPROXY -p tcp -d $server_ip -j RETURN
 		COUNTER=$(($COUNTER+1))
 	done
 	COUNTER=0
@@ -78,9 +87,10 @@ EOF
 		fi
 		echo the $COUNTER $server_ip $server_name $server_port
 		echo server $server_name $server_ip:$server_port weight 10 check backup inter 1500 rise 3 fall 3 >> $CFG_FILE
+		iptables -t nat -A HAPROXY -p tcp -d $server_ip -j RETURN
 		COUNTER=$(($COUNTER+1))
 	done
-
+	iptables -t nat -I OUTPUT -j HAPROXY
 	/etc/init.d/haproxy enable
 	/etc/init.d/haproxy restart
 }
