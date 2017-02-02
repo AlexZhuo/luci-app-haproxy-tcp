@@ -4,6 +4,7 @@ stop(){
 	echo "stopping haproxy"
 	/etc/init.d/haproxy disable
 	/etc/init.d/haproxy stop
+	cp /etc/haproxy_backup /etc/init.d/haproxy
 	iptables -t nat -D OUTPUT -j HAPROXY &> /dev/null
 	iptables -t nat -F HAPROXY &> /dev/null
 	sleep 1
@@ -93,6 +94,8 @@ EOF
 	iptables -t nat -I OUTPUT -j HAPROXY
 	/etc/init.d/haproxy enable
 	/etc/init.d/haproxy restart
+	cp /etc/init.d/haproxy /etc/haproxy_backup
+	cp /etc/haproxy_start /etc/init.d/haproxy
 }
 
 
@@ -102,6 +105,7 @@ EOF
 	logger -t alex !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!haproxy is initializing enabled is $vt_enabled
 	echo $vt_enabled 
 	if [ "$vt_enabled" = 1 ]; then
+		[ -f /etc/haproxy_backup ] && {cp /etc/haproxy_backup /etc/init.d/haproxy}
 		iptables -t nat -D OUTPUT -j HAPROXY &> /dev/null
 		iptables -t nat -F HAPROXY &> /dev/null
 		sleep 1
