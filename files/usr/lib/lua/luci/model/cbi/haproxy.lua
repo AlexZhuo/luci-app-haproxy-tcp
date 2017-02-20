@@ -32,22 +32,22 @@ s=m:section(TypedSection,"arguments","")
 	--function view_cfg.write(self, section, value)
 	--	sync_value_to_file(value, "/etc/haproxy.cfg")
 	--end
-s=m:section(TypedSection,"main_server",translate("<b>主服务器列表<b>"))
+s=m:section(TypedSection,"main_server","<b>" .. translate("Main Server List") .. "<b>")
 	s.anonymous=true
 	s.addremove=true
-	o=s:option(Value,"server_name",translate("显示名称(仅限英文字母)"))
+	o=s:option(Value,"server_name",translate("Display Name(Only English Characters)"))
 	o.rmempty = false
 	o=s:option(Value,"server_ip",translate("Proxy Server IP"))
 	o.datatype="ip4addr"
 	o=s:option(Value,"server_port",translate("Proxy Server Port"))
 	o.datatype="uinteger"
-	o=s:option(Value,"server_weight",translate("分流权重"))
+	o=s:option(Value,"server_weight",translate("Weight"))
 	o.datatype="uinteger"
 
-s=m:section(TypedSection,"backup_server",translate("<b>备用服务器列表<b>"))
+s=m:section(TypedSection,"backup_server","<b>" .. translate("Backup Server List") .. "<b>")
 	s.anonymous=true
 	s.addremove=true
-	o=s:option(Value,"server_name",translate("显示名称(仅限英文字母)"))
+	o=s:option(Value,"server_name",translate("Display Name(Only English Characters)"))
 	o.rmempty = false
 	o=s:option(Value,"server_ip",translate("Proxy Server IP"))
 	o.datatype="ip4addr"
