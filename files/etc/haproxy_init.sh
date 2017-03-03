@@ -4,7 +4,9 @@ stop(){
 	echo "stopping haproxy"
 	/etc/init.d/haproxy disable
 	/etc/init.d/haproxy stop
-	cp /etc/haproxy_backup /etc/init.d/haproxy
+	[ -f /etc/haproxy_backup ] && {
+		cp /etc/haproxy_backup /etc/init.d/haproxy
+	}
 	iptables -t nat -D OUTPUT -j HAPROXY &> /dev/null
 	iptables -t nat -F HAPROXY &> /dev/null
 	sleep 1
@@ -54,7 +56,7 @@ backend ss-out
 	balance   roundrobin
 	option tcplog
 EOF
-	COUNTER=0
+	local COUNTER=0
 	#添加主服务器
 	iptables -t nat -X HAPROXY
 	iptables -t nat -N HAPROXY
@@ -66,12 +68,15 @@ EOF
 		local server_name=`uci get haproxy.@main_server[$COUNTER].server_name 2>/dev/null`
 		local server_port=`uci get haproxy.@main_server[$COUNTER].server_port 2>/dev/null`
 		local server_weight=`uci get haproxy.@main_server[$COUNTER].server_weight 2>/dev/null`
+		local validate=`uci get haproxy.@main_server[$COUNTER].validate 2>/dev/null`
 		if [ -z "$server_ip" ] || [ -z "$server_name" ] || [ -z "$server_port" ] || [ -z "$server_weight" ]; then
 			echo break
 			break
 		fi
-		echo the $COUNTER $server_ip $server_name $server_port $server_weight
-		echo server $server_name $server_ip:$server_port weight $server_weight maxconn 1024 check inter 1500 rise 3 fall 3 >> $CFG_FILE
+		echo the main server $COUNTER $server_ip $server_name $server_port $server_weight
+		[ "$validate" = 1 ] && {
+			echo server $server_name $server_ip:$server_port weight $server_weight maxconn 1024 check inter 1500 rise 3 fall 3 >> $CFG_FILE
+		}
 		iptables -t nat -A HAPROXY -p tcp -d $server_ip -j ACCEPT
 		COUNTER=$(($COUNTER+1))
 	done
@@ -82,12 +87,15 @@ EOF
 		local server_ip=`uci get haproxy.@backup_server[$COUNTER].server_ip 2>/dev/null`
 		local server_name=`uci get haproxy.@backup_server[$COUNTER].server_name 2>/dev/null`
 		local server_port=`uci get haproxy.@backup_server[$COUNTER].server_port 2>/dev/null`
+		local validate=`uci get haproxy.@backup_server[$COUNTER].validate 2>/dev/null`
 		if [ -z "$server_ip" ] || [ -z "$server_name" ] || [ -z "$server_port" ]; then
 			echo break
 			break
 		fi
-		echo the $COUNTER $server_ip $server_name $server_port
-		echo server $server_name $server_ip:$server_port weight 10 check backup inter 1500 rise 3 fall 3 >> $CFG_FILE
+		echo the backup server $COUNTER $server_ip $server_name $server_port
+		[ "$validate" = 1 ] && {
+			echo server $server_name $server_ip:$server_port weight 10 check backup inter 1500 rise 3 fall 3 >> $CFG_FILE
+		}
 		iptables -t nat -A HAPROXY -p tcp -d $server_ip -j ACCEPT
 		COUNTER=$(($COUNTER+1))
 	done
@@ -105,7 +113,9 @@ EOF
 	logger -t alex !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!haproxy is initializing enabled is $vt_enabled
 	echo $vt_enabled 
 	if [ "$vt_enabled" = 1 ]; then
-		[ -f /etc/haproxy_backup ] && {cp /etc/haproxy_backup /etc/init.d/haproxy}
+		[ -f /etc/haproxy_backup ] && {
+			cp /etc/haproxy_backup /etc/init.d/haproxy
+		}
 		iptables -t nat -D OUTPUT -j HAPROXY &> /dev/null
 		iptables -t nat -F HAPROXY &> /dev/null
 		sleep 1
@@ -114,6 +124,3 @@ EOF
 	else	
 		stop;
 	fi
-
-
-

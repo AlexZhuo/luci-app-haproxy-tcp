@@ -47,6 +47,8 @@ make package/luci-app-haproxy-tcp/compile V=99
 截图
 ---
 ![](https://github.com/AlexZhuo/BreakwallOpenWrt/raw/master/screenshots/haproxy.jpg)
+
 [A]: http://www.right.com.cn/forum/thread-198649-1-1.html
+[openwrt-sdk]: http://wiki.openwrt.org/doc/howto/obtain.firmware.sdk
 
 
