@@ -8,7 +8,7 @@ OpenWrt HAProxy的Luci配置页面，已在[该固件][A]中使用
 
 可以设置多个主服务器或多个备用服务器. 默认监听端口127.0.0.1:2222 后台监控页面端口0.0.0.0:1111,后台监控页面地址192.168.1.1:1111/haproxy
 
-多主服务器时是将所有TCP流量分流，并可以设置每个服务器的分流比例，多备用服务器时是在检测到主服务器A宕机之后切换至备用服务器B，B宕机之后切换到服务器C...依次类推，可以防止因为单个服务器或者线路故障导致的断网问题。
+多主服务器是将所有TCP流量分流，并可以设置每个服务器的分流比例;多备用服务器是在检测到主服务器A宕机之后切换至备用服务器B，B宕机之后切换到服务器C...依次类推，可以防止因为单个服务器或者线路故障导致的断网问题。
 使用效果和更多使用方法请[点击这里][A]
 
 
@@ -46,7 +46,7 @@ make package/luci-app-haproxy-tcp/compile V=99
 
 截图
 ---
-![](https://github.com/AlexZhuo/BreakwallOpenWrt/raw/master/screenshots/haproxy.jpg)
+![](https://github.com/AlexZhuo/BreakwallOpenWrt/raw/master/screenshots/haproxy.png)
 
 [A]: http://www.right.com.cn/forum/thread-198649-1-1.html
 [openwrt-sdk]: http://wiki.openwrt.org/doc/howto/obtain.firmware.sdk
