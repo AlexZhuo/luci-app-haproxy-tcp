@@ -1,3 +1,5 @@
+#!/bin/sh /etc/rc.common
+
 CFG_FILE=/etc/haproxy.cfg
 stop(){
 	logger -t alex stopping haproxy
@@ -12,8 +14,8 @@ stop(){
 	sleep 1
 	iptables -t nat -X HAPROXY &> /dev/null
 }
-restart(){
-	echo "restarting haproxy"
+start(){
+	echo "starting haproxy"
 	logger -t alex restarting haproxy
 	echo global > $CFG_FILE
 	cat >> $CFG_FILE <<EOF
@@ -106,7 +108,7 @@ EOF
 	cp /etc/haproxy_start /etc/init.d/haproxy
 }
 
-
+restart(){
 	echo luci for haproxy
 	sleep 1s
 	local vt_enabled=`uci get haproxy.@arguments[0].enabled 2>/dev/null`
@@ -120,7 +122,8 @@ EOF
 		iptables -t nat -F HAPROXY &> /dev/null
 		sleep 1
 		iptables -t nat -X HAPROXY &> /dev/null
-		restart;
+		start;
 	else	
 		stop;
 	fi
+}

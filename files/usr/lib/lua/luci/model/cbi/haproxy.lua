@@ -62,6 +62,6 @@ s=m:section(TypedSection,"backup_server","<b>" .. translate("Backup Server List"
 -- ---------------------------------------------------
 local apply = luci.http.formvalue("cbi.apply")
 if apply then
-	os.execute("/etc/haproxy_init.sh >/dev/null 2>&1 &")
+	os.execute("/etc/haproxy_init.sh restart >/dev/null 2>&1 &")
 end
 return m
