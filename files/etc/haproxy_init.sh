@@ -17,15 +17,17 @@ stop(){
 start(){
 	echo "starting haproxy"
 	logger -t alex restarting haproxy
-	echo global > $CFG_FILE
-	cat >> $CFG_FILE <<EOF
+	local balance=`uci get haproxy.@arguments[0].balance 2>/dev/null`
+	[ -z $balance ] && balance=roundrobin
+	cat > $CFG_FILE <<EOF
+global
   log 127.0.0.1   local0           #[日志输出配置，所有日志都记录在本机，通过local0输出]
   log 127.0.0.1   local1 notice    #定义haproxy 日志级别[error warringinfo debug]
   daemon		                #以后台形式运行harpoxy
   nbproc 1                         #设置进程数量
   pidfile /var/run/haproxy.pid
-  ulimit-n 1024                    #ulimit 的数量限制
-  maxconn 1024	                #默认最大连接数,需考虑ulimit-n限制
+  ulimit-n 65536                    #ulimit 的数量限制
+  maxconn 65536	                #默认最大连接数,需考虑ulimit-n限制
   #chroot /usr/local/haproxy
 defaults
   log global
@@ -33,13 +35,13 @@ defaults
   retries 3                 #两次连接失败就认为是服务器不可用，也可以通过后面设置
   option abortonclose       #当服务器负载很高的时候，自动结束掉当前队列处理比较久的链接
   option redispatch
-  maxconn 1024              #默认的最大连接数
+  maxconn 65536              #默认的最大连接数
   timeout connect  5000ms   #连接超时
   timeout client 30000ms    #客户端超时
   timeout server 30000ms    #服务器超时
-  balance roundrobin        #设置默认负载均衡方式，轮询方式
+  balance $balance        #设置默认负载均衡方式，轮询方式
   #balance source           #设置默认负载均衡方式，类似于nginx的ip_hash
-  #balnace leastconn        #设置默认负载均衡方式，最小连接数
+  #balance leastconn        #设置默认负载均衡方式，最小连接数
 listen admin_stats
   bind 0.0.0.0:1111               #节点统计页面的访问端口
   mode http                       #http的7层模式
@@ -55,7 +57,7 @@ frontend ss-in
 	default_backend ss-out
 backend ss-out
 	mode tcp
-	balance   roundrobin
+	balance   $balance
 	option tcplog
 EOF
 	local COUNTER=0
@@ -77,7 +79,7 @@ EOF
 		fi
 		echo the main server $COUNTER $server_ip $server_name $server_port $server_weight
 		[ "$validate" = 1 ] && {
-			echo server $server_name $server_ip:$server_port weight $server_weight maxconn 1024 check inter 1500 rise 3 fall 3 >> $CFG_FILE
+			echo server $server_name $server_ip:$server_port weight $server_weight maxconn 4096 check inter 1500 rise 3 fall 3 >> $CFG_FILE
 		}
 		iptables -t nat -A HAPROXY -p tcp -d $server_ip -j ACCEPT
 		COUNTER=$(($COUNTER+1))

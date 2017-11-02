@@ -21,6 +21,10 @@ s=m:section(TypedSection,"arguments","")
 	s.addremove=false
 	s.anonymous=true
 	view_enable = s:option(Flag,"enabled",translate("Enable"))
+	balance=s:option(ListValue,"balance",translate("Balance Strategy"))
+	balance:value("roundrobin",translate("roundrobin"))
+	balance:value("leastconn",translate("leastconn"))
+	balance:value("source",translate("source"))
 	--通过读写配置文件控制HAProxy这种方式已经弃用
 	--view_cfg = s:option(TextValue, "1", nil)
 	--view_cfg.rmempty = false

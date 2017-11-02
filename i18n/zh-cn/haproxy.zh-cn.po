@@ -28,6 +28,19 @@ msgstr "备用服务器列表"
 msgid "validate"
 msgstr "生效"
 
+msgid "Balance Strategy"
+msgstr "负载均衡模式"
+
+msgid "roundrobin"
+msgstr "轮询"
+
+msgid "leastconn"
+msgstr "最少连接数优先"
+
+msgid "source"
+msgstr "源IP地址"
+
+
 
 
 
